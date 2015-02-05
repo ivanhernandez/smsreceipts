@@ -1,7 +1,7 @@
 #
 # heroku create --stack cedar --buildpack https://github.com/vic/heroku-buildpack-nim.git
 
-import jester, asyncdispatch, htmlgen
+import jester, asyncdispatch, htmlgen, os, strutils
 
 const
     buffer_size = 100
@@ -14,6 +14,10 @@ var
     index : int = 0
     count : int = 0
     total : int = 0
+
+var settings = newSettings()
+if existsEnv("PORT"):
+    settings.port = Port(parseInt(getEnv("PORT")))
 
 routes:
     get "/":
@@ -48,7 +52,11 @@ routes:
 
         total = total + 1
 
-        responses[item_index] = "{ \"body\": \"" & $request.body & "\", \"params\": \"" & $request.params & "\" }"
+        responses[item_index] = "{ \"body\": \"" &
+                                $request.body &
+                                "\", \"params\": \"" &
+                                $request.params &
+                                "\" }"
 
         resp("Ok", "application/json")
 
