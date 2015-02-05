@@ -3,7 +3,7 @@ name          = "SmsReceipts"
 version       = "0.1.0"
 author        = "Ivan Hernandez <ivanhernandez.ihv@gmail.oom>"
 description   = "A test project for Heroku and SmsGlobal"
-license       = "BSD"
+license       = "MIT License"
 
 bin			  = "SmsReceipts"
 
