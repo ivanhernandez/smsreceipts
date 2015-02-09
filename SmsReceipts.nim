@@ -1,10 +1,11 @@
 #
 # heroku create --stack cedar --buildpack https://github.com/vic/heroku-buildpack-nim.git
 
-import jester, asyncdispatch, htmlgen
+import jester, asyncdispatch, htmlgen, ropes
 
 const
     buffer_size = 100
+    MIME = "application/json"
 
 type
     Responses = array[0..buffer_size, string]
@@ -14,6 +15,23 @@ var
     index : int = 0
     count : int = 0
     total : int = 0
+
+
+proc json(table: StringTableRef): string =
+    var
+        first = true
+        output = rope("[")
+
+    for kv in table.pairs():
+        if first:
+            first = false
+        else:
+            output = output & ", "
+
+        output = output & "{\"" & kv.key & "\": \"" & kv.value & "\"}"
+
+    output = output & "]"
+    $output
 
 routes:
     get "/":
@@ -31,7 +49,7 @@ routes:
                     output = output & ", "
             i = 0
 
-        resp(output & "]}", "application/json")
+        resp(output & "]}", MIME)
 
     post "/":
         var item_index : int
@@ -48,8 +66,21 @@ routes:
 
         total = total + 1
 
-        responses[item_index] = "{ \"body\": \"" & $request.body & "\", \"params\": \"" & $request.params & "\" }"
+        responses[item_index] = "{ \"body\": \"" &
+                                $request.body &
+                                "\", \"params\": " &
+                                json(request.params) &
+                                " }"
 
-        resp("Ok", "application/json")
+        resp("Ok", MIME)
+
+    delete "/":
+        var
+            removed = count
+
+        index = 0;
+        count = 0;
+
+        resp("{ \"removed\": " & $removed & " }", MIME)
 
 runForever()
