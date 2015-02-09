@@ -1,7 +1,7 @@
 #
 # heroku create --stack cedar --buildpack https://github.com/vic/heroku-buildpack-nim.git
 
-import jester, asyncdispatch, htmlgen, ropes
+import jester, asyncdispatch, htmlgen, os, strutils, ropes
 
 const
     buffer_size = 100
@@ -16,6 +16,9 @@ var
     count : int = 0
     total : int = 0
 
+var settings = newSettings()
+if existsEnv("PORT"):
+    settings.port = Port(parseInt(getEnv("PORT")))
 
 proc json(table: StringTableRef): string =
     var
